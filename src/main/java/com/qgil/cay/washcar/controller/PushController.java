@@ -75,7 +75,6 @@ public class PushController {
         	base.setErr("-200", e.getMessage());;
             // Connection error, should retry later
         	log.error("极光推送连接异常==>Connection error, should retry later", e);
-
         } catch (APIRequestException e) {
         	base.setErr("-200", e.getMessage());;
             // Should review the error, and fix the request

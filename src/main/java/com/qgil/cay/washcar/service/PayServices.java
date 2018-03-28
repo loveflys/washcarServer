@@ -10,9 +10,9 @@ import com.qgil.cay.washcar.entity.PayConst;
 import com.qgil.cay.washcar.entity.PayResult;
 import com.qgil.cay.washcar.utils.AESUtil;
 import com.qgil.cay.washcar.utils.HttpRequestUtil;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang3.StringUtils;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +22,7 @@ import java.util.List;
  */
 
 public class PayServices {
+	protected Logger log = LoggerFactory.getLogger(this.getClass());
     private static Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
     /**
      * 上传账单
@@ -43,11 +44,8 @@ public class PayServices {
         bill.setNotifyurl(PayConst.NOTIFY_URL);
         try {
             String result = HttpRequestUtil.doPost(PayConst.PAY_URL, new String(AESUtil.encrypt(EncodeByGson(bill) , PayConst.SECRET_KEY)));
-            System.out.println(result);
             result = AESUtil.decrypt(result, PayConst.SECRET_KEY);
-            System.out.println(result);
             Bill res = JSONObject.parseObject(result, Bill.class);
-            System.out.println(res.getOrderno());
             bill.setOrderno(res.getOrderno());
             if(!bill.getBillDetail().isEmpty()) {
                 bill.setBillno(bill.getBillDetail().get(0).getBillno());
@@ -74,11 +72,8 @@ public class PayServices {
         try {
             PayApply apply = new PayApply(orderNo, paychan);
             String result = HttpRequestUtil.doPost(PayConst.PAY_URL, new String(AESUtil.encrypt(EncodeByGson(apply) , PayConst.SECRET_KEY)));
-//            System.out.println(result);
             result = AESUtil.decrypt(result, PayConst.SECRET_KEY);
-//            System.out.println(result);
             apply = JSONObject.parseObject(result, PayApply.class);
-//            System.out.println(apply.getPayurl() + "||" + apply.getQrcodeurl());
             if(StringUtils.isNotBlank(apply.getQrcodeurl())) {
                 return apply.getQrcodeurl();
             }

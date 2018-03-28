@@ -12,7 +12,7 @@ public class PayApply {
 	private String orderno;	//订单号
 	private String paychan;	//支付渠道
 	private String authcode;//主扫模式条码、二维码支付条码信息， 条码支付的授权码（条码抢扫手机扫到的一串数字）
-	private String qgilPayHelperurl;//付款二维码地址
+	private String qrcodeurl;//付款二维码地址
 	private String payurl;	//公众账号/服务窗订单支付地址
 	private String orderSts;//订单状态
 	
@@ -57,10 +57,10 @@ public class PayApply {
 		this.authcode = authcode;
 	}
 	public String getQrcodeurl() {
-		return qgilPayHelperurl;
+		return qrcodeurl;
 	}
-	public void setQrcodeurl(String qgilPayHelperurl) {
-		this.qgilPayHelperurl = qgilPayHelperurl;
+	public void setQrcodeurl(String qrcodeurl) {
+		this.qrcodeurl = qrcodeurl;
 	}
 	public String getPayurl() {
 		return payurl;
