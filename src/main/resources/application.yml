@@ -1,5 +1,5 @@
 server:
-  port: '8282'
+  port: '9092'
   context-path: '/'
 push:
   appKey: "7c6f9e69d53c4168879c596e"
