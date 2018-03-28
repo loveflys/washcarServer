@@ -1,11 +1,15 @@
 package com.qgil.cay.washcar.controller;
 
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.util.ByteArrayBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.qgil.cay.washcar.entity.Bill;
+import com.qgil.cay.washcar.entity.ChannelMsgResHead;
 import com.qgil.cay.washcar.entity.PayConst;
 import com.qgil.cay.washcar.entity.PayResult;
 import com.qgil.cay.washcar.entity.PayResultEntity;
@@ -62,8 +67,7 @@ public class PayController {
 	
 	@PostMapping("/getresult")
 	@ResponseBody
-	public PayResultEntity getResult(HttpServletRequest request, HttpServletResponse response) {
-		PayResultEntity res = new PayResultEntity();
+	public void getResult(HttpServletRequest request, HttpServletResponse response) {
 		PayResult payresult = new PayResult();
 		
 		try {
@@ -72,22 +76,27 @@ public class PayController {
 			String content = AESUtil.decrypt(tempContent, PayConst.SECRET_KEY);
 			log.info("支付回调==>" + ("OR02".equals(payresult.getOrderSts())?"支付成功":"支付失败"));
 			log.info("支付回调返回信息==>" + content);
-			payresult = JSONObject.parseObject(content, PayResult.class);
-			res.setPayresult(payresult);
-			
+			payresult = JSONObject.parseObject(content, PayResult.class);			
 			PushController push = new PushController();
 	    	List<PushExtra> extralist = new ArrayList<PushExtra>();
 	        extralist.add(new PushExtra("id", payresult.getOrderNo()));
 	        extralist.add(new PushExtra("status", payresult.getOrderSts()));
 	        push.pushMessage("OR02".equals(payresult.getOrderSts())?"支付成功":"支付失败", "支付结果通知", content, JSONArray.toJSONString(extralist),pushConfig.getAppKey(),pushConfig.getMasterSecret());
-	        res.setOk();
+	        ChannelMsgResHead res = new ChannelMsgResHead();
+	        res.setProcd("AAAAAA");
+	        res.setProinfo("");
+	        res.setUserName("");
+	        String resp = new String(AESUtil.encrypt(JSONObject.toJSONString(new ChannelMsgResHead()) ,PayConst.SECRET_KEY));
+	        BufferedOutputStream out = new BufferedOutputStream(  
+                    response.getOutputStream()); 
+			out.write(resp.getBytes());
+			log.info("输出到支付平台的通知==>" + resp);
+			out.flush();  
+	        out.close(); 
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-        return res;
 	}
 }
