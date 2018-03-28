@@ -77,7 +77,8 @@ public class PayController {
 			
 			PushController push = new PushController();
 	    	List<PushExtra> extralist = new ArrayList<PushExtra>();
-	        extralist.add(new PushExtra("id",payresult.getOrderNo()));
+	        extralist.add(new PushExtra("id", payresult.getOrderNo()));
+	        extralist.add(new PushExtra("status", payresult.getOrderSts()));
 	        push.pushMessage("OR02".equals(payresult.getOrderSts())?"支付成功":"支付失败", "支付结果通知", content, JSONArray.toJSONString(extralist),pushConfig.getAppKey(),pushConfig.getMasterSecret());
 	        res.setOk();
 		} catch (IOException e) {
